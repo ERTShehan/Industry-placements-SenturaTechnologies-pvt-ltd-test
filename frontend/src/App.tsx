@@ -1,29 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
+interface Country {
+  name: string;
+  capital: string;
+  region: string;
+  population: number;
+  flag: string;
+}
+
 function App() {
-  const [countries, setCountries] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
 
   useEffect(() => {
     fetchCountries();
   }, []);
 
-  const fetchCountries = async (query = '') => {
+  const fetchCountries = async (query: string = '') => {
     try {
       const url = query 
         ? `http://localhost:8080/api/countries?search=${query}` 
         : `http://localhost:8080/api/countries`;
       const response = await fetch(url);
-      const data = await response.json();
+      const data: Country[] = await response.json();
       setCountries(data);
     } catch (error) {
       console.error("Error fetching data", error);
     }
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
     fetchCountries(value);
@@ -33,7 +41,6 @@ function App() {
     <div className="App">
       <h1>Countries Dashboard</h1>
       
-      {/* Search Input */}
       <input 
         type="text" 
         placeholder="Search countries..." 
@@ -42,7 +49,6 @@ function App() {
         className="search-input"
       />
       
-      {/* Countries Table */}
       <table className="countries-table">
         <thead>
           <tr>
@@ -66,10 +72,9 @@ function App() {
         </tbody>
       </table>
 
-      {/* Country Details Modal / Popup */}
       {selectedCountry && (
         <div className="modal-overlay" onClick={() => setSelectedCountry(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedCountry(null)}>&times;</button>
             <h2>{selectedCountry.name}</h2>
             <img src={selectedCountry.flag} alt="Flag" className="modal-flag" />
